@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Trivia Quiz</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .question-container {
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .choices-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .choice {
+            background-color: #e9f7ef;
+            border: 2px solid #d4edda;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .choice input {
+            margin-right: 8px;
+        }
+
+        button {
+            padding: 12px;
+            width: 100%;
+            max-width: 500px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #result-display {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trivia Quiz</h1>
+    <div class="score-board">
+        <p id="score-display">Your Score: 0</p>
+        <p id="best-score-display">Best Score: 0</p>
+    </div>
+    <button id="start-button">Start Quiz</button>
+    <div id="quiz-section" style="display: none;"></div>
+    <button id="submit-button" style="display: none;">Submit Answer</button>
+    <div id="result-display"></div>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: [
+                    "Mars", 
+                    "Venus", 
+                    "Jupiter", 
+                    "Saturn"
+                ],
+                answer: "Mars"
+            },
+            {
+                question: "Who wrote the play 'Romeo and Juliet'?",
+                options: ["William Shakespeare", "Jane Austen", "Charles Dickens", "Mark Twain"],
+                answer: "William Shakespeare"
+            },
+            {
+                question: "What is the chemical symbol for gold?",
+                options: ["Au", "Ag", "Pb", "Fe"],
+                answer: "Au"
+            }
+        ];
+
+        let questionIndex = 0;
+        let score = 0;
+        let bestScore = 0;
+
+        const quizSection = document.getElementById('quiz-section');
+        const resultDisplay = document.getElementById('result-display');
+        const submitButton = document.getElementById('submit-button');
+        const startButton = document.getElementById('start-button');
+        const scoreDisplay = document.getElementById('score-display');
+        const bestScoreDisplay = document.getElementById('best-score-display');
+
+        function startQuiz() {
+            score = 0;
+            questionIndex = 0;
+            resultDisplay.textContent = '';
+            updateScore();
+            loadQuiz();
+            quizSection.style.display = 'block';
+            submitButton.style.display = 'block';
+            startButton.style.display = 'none';
+        }
+
+        function loadQuiz() {
+            const questionElement = document.createElement('div');
+            questionElement.className = 'question-container';
+
+            const questionText = document.createElement('p');
+            questionText.className = 'question-text';
+            questionText.textContent = quizQuestions[questionIndex].question;
+            questionElement.appendChild(questionText);
+
+            const choicesContainer = document.createElement('div');
+            choicesContainer.className = 'choices-container';
+
+            quizQuestions[questionIndex].options.forEach(option => {
+                const choiceLabel = document.createElement('label');
+                choiceLabel.className = 'choice';
+
+                const radioInput = document.createElement('input');
+                radioInput.type = 'radio';
+                radioInput.name = 'quiz-choice';
+                radioInput.value = option;
+
+                choiceLabel.appendChild(radioInput);
+                choiceLabel.appendChild(document.createTextNode(option));
+                choicesContainer.appendChild(choiceLabel);
+            });
+
+            quizSection.innerHTML = '';
+            quizSection.appendChild(questionElement);
+            quizSection.appendChild(choicesContainer);
+        }
+
+        function checkAnswer() {
+            const selectedChoice = document.querySelector('input[name="quiz-choice"]:checked');
+            if (selectedChoice) {
+                const userAnswer = selectedChoice.value;
+                if (userAnswer === quizQuestions[questionIndex].answer) {
+                    score++;
+                }
+            }
+            updateScore();
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `Your Score: ${score}`;
+            if (score > bestScore) {
+                bestScore = score;
+                bestScoreDisplay.textContent = `Best Score: ${bestScore}`;
+            }
+        }
+
+        function showResult() {
+            resultDisplay.textContent = `You answered ${score} out of ${quizQuestions.length} questions correctly.`;
+            quizSection.style.display = 'none';
+            submitButton.style.display = 'none';
+            startButton.style.display = 'block';
+        }
+
+        startButton.addEventListener('click', startQuiz);
+
+        submitButton.addEventListener('click', () => {
+            checkAnswer();
+            questionIndex++;
+            if (questionIndex < quizQuestions.length) {
+                loadQuiz();
+            } else {
+                showResult();
+            }
+        });
+    </script>
+</body>
+</html>
